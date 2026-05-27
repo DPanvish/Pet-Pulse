@@ -1,0 +1,141 @@
+Pet Pulse Setup Notes
+=====================
+
+Step 1: Create the React client app
+Command used:
+  npm create vite@latest client -- --template react
+
+Why this was used:
+  This creates the frontend project inside the client folder using Vite's React template.
+  Vite provides a fast development server, modern build tooling, and a simple project structure for React apps.
+
+Dependencies added by the scaffold/install:
+  react
+    Used to build the frontend user interface with reusable components and state-driven rendering.
+
+  react-dom
+    Used to render the React app into the browser DOM.
+
+Development dependencies added:
+  vite
+    Provides the local development server and production build pipeline.
+
+  @vitejs/plugin-react
+    Adds React support to Vite, including JSX handling and React Fast Refresh during development.
+
+  eslint
+    Runs static code checks to catch common JavaScript and React issues.
+
+  @eslint/js
+    Provides the base ESLint JavaScript rule configuration.
+
+  eslint-plugin-react-hooks
+    Enforces the Rules of Hooks for React components.
+
+  eslint-plugin-react-refresh
+    Helps ensure components are compatible with React Fast Refresh.
+
+  globals
+    Provides predefined global variable sets for linting browser and modern JavaScript code.
+
+  @types/react
+    Provides TypeScript type definitions for React, useful for editor IntelliSense and tooling even in mixed JS projects.
+
+  @types/react-dom
+    Provides TypeScript type definitions for React DOM APIs.
+
+Step 2: Install client dependencies
+Command used:
+  cd client
+  npm install
+
+Why this was used:
+  Installs all packages listed in client/package.json and creates client/package-lock.json for reproducible installs.
+
+Step 3: Install frontend styling, routing, icon, and animation libraries
+Command used:
+  cd client
+  npm install @tailwindcss/vite tailwindcss framer-motion gsap lucide-react react-router-dom
+
+Why this was used:
+  Adds the main UI support libraries needed for styling, page navigation, icons, and animations in the React client.
+
+Dependencies added:
+  @tailwindcss/vite
+    Connects Tailwind CSS to the Vite build pipeline so Tailwind styles can be processed during development and production builds.
+
+  tailwindcss
+    Provides utility-first CSS classes for building responsive, consistent UI styling quickly.
+
+  framer-motion
+    Provides React animation primitives for component transitions, layout animations, and interactive motion effects.
+
+  gsap
+    Provides timeline-based animation tools for more advanced or highly controlled visual effects.
+
+  lucide-react
+    Provides a clean React icon set for buttons, navigation, cards, and other UI elements.
+
+  react-router-dom
+    Provides client-side routing so the app can navigate between pages without full browser reloads.
+
+Step 4: Create the backend Node project
+Command used:
+  mkdir backend
+  cd backend
+  npm init -y
+
+Why this was used:
+  Creates a separate backend package for the server-side API and generates backend/package.json.
+
+Backend package settings added:
+  "type": "module"
+    Enables ES module import/export syntax in backend JavaScript files.
+
+  "start": "node server.js"
+    Runs the backend server in normal mode.
+
+  "dev": "nodemon server.js"
+    Runs the backend server in development mode with automatic restarts when files change.
+
+Step 5: Install backend API, database, auth, and security dependencies
+Command used:
+  cd backend
+  npm install express mongoose dotenv cors bcryptjs jsonwebtoken helmet
+
+Why this was used:
+  Adds the core packages needed to build an Express API, connect to MongoDB, manage environment variables, support frontend requests, and handle authentication/security concerns.
+
+Dependencies added:
+  express
+    Provides the backend web server and routing layer for API endpoints.
+
+  mongoose
+    Provides MongoDB object modeling, schemas, validation, and database queries.
+
+  dotenv
+    Loads environment variables from a .env file, such as database URLs, JWT secrets, and server ports.
+
+  cors
+    Enables controlled cross-origin requests so the React client can call the backend API.
+
+  bcryptjs
+    Hashes passwords before storing them and compares submitted passwords during login.
+
+  jsonwebtoken
+    Creates and verifies JWT tokens for user authentication and protected routes.
+
+  helmet
+    Adds common HTTP security headers to reduce basic web security risks.
+
+Step 6: Install backend development watcher
+Command used:
+  cd backend
+  npm install -D nodemon
+
+Why this was used:
+  Adds automatic server restarts during backend development so code changes do not require manually stopping and starting Node.
+
+Development dependency added:
+  nodemon
+    Watches backend files and restarts server.js whenever code changes.
