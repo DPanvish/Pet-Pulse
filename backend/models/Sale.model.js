@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const saleSchema = new mongoose.Schema({
+    ownerId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User',
+        required: true 
+    },
     invoiceNumber: {
         type: String,
         required: true,

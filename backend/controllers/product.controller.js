@@ -12,11 +12,12 @@ export const createProduct = async (req, res) => {
         const SKU = `${prefix}-${randomNum}`;
 
         let imageUrls = [];
-        if (req.files && req.files.length > 0) {
+        if(req.files && req.files.length > 0){
             imageUrls = req.files.map(file => file.path);
         }
 
         const product = await Product.create({
+            ownerId: req.user._id, 
             name,
             category,
             SKU,
@@ -27,68 +28,70 @@ export const createProduct = async (req, res) => {
             supplier,
             description,
             images: imageUrls
-        })
+        });
 
         res.status(201).json(product);
     }catch(error){
         console.error(error);
-        res.status(500).json({message: "Server error", error: error.message});
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
 // @desc    Get all products
 // @route   GET /api/products
-export const getProducts = async(req, res) => {
+export const getProducts = async (req, res) => {
     try{
-        const { search, category } = req.query;
-        let queryObj = {},
+        const {search, category} = req.query;
+
+        let queryObj = { ownerId: req.user._id }; 
 
         if (search) {
             queryObj.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { SKU: { $regex: search, $options: 'i' } }
+                {name: {$regex: search, $options: 'i'}},
+                {SKU: {$regex: search, $options: 'i'}}
             ];
         }
 
-        if (category) {
+        if(category){
             queryObj.category = category;
         }
 
-        const products = await Product.find(queryObj).sort({createdAt: -1});
+        const products = await Product.find(queryObj).sort({ createdAt: -1 });
         res.status(200).json(products);
     }catch(error){
         console.error(error);
-        res.status(500).json({message: "Server error", error: error.message});
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
 // @desc    Get items with low stock
 // @route   GET /api/products/low-stock
-export const getLowStockProducts = async(req, res) => {
-    try {
+export const getLowStockProducts = async (req, res) => {
+    try{
         const lowStockItems = await Product.find({
-            $expr: {$lte: ["$currentQuantity", "$minStockLevel"]}
+            ownerId: req.user._id, 
+            $expr: { $lte: ["$currentQuantity", "$minStockLevel"] }
         });
 
         res.status(200).json(lowStockItems);
-    } catch (error) {
+    }catch(error){
         console.error(error);
-        res.status(500).json({message: "Server error", error: error.message});
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
 // @desc    Update a product
 // @route   PUT /api/products/:id
 export const updateProduct = async (req, res) => {
-    try {
-        let product = await Product.findById(req.params.id);
+    try{
+        let product = await Product.findOne({ _id: req.params.id, ownerId: req.user._id });
 
-        if (!product) {
-            return res.status(404).json({ msg: 'Product not found' });
+        if(!product){
+            return res.status(404).json({ msg: 'Product not found or unauthorized' });
         }
 
         let existingImages = [];
-        if (req.body.existingImages) {
+        if(req.body.existingImages){
             existingImages = Array.isArray(req.body.existingImages) 
                 ? req.body.existingImages 
                 : [req.body.existingImages];
@@ -101,24 +104,18 @@ export const updateProduct = async (req, res) => {
 
         let finalImages = product.images; 
 
-        if (req.body.existingImages !== undefined || newImages.length > 0) {
+        if(req.body.existingImages !== undefined || newImages.length > 0){
             finalImages = [...existingImages, ...newImages];
         }
 
-        const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id, 
-            {
-                ...req.body,      
-                images: finalImages 
-            }, 
-            { 
-                new: true,        
-                runValidators: true 
-            }
+        const updatedProduct = await Product.findOneAndUpdate(
+            {_id: req.params.id, ownerId: req.user._id}, 
+            {...req.body, images: finalImages}, 
+            {new: true, runValidators: true }
         );
 
         res.status(200).json(updatedProduct);
-    } catch (error) {
+    }catch(error){
         console.error(error);
         res.status(500).json({ msg: 'Server error', error: error.message });
     }
@@ -126,17 +123,17 @@ export const updateProduct = async (req, res) => {
 
 // @desc    Delete a product
 // @route   DELETE /api/products/:id
-export const deleteProduct = async(req, res) => {
+export const deleteProduct = async (req, res) => {
     try{
-        const product = await Product.findByIdAndDelete(req.params.id);
+        const product = await Product.findOneAndDelete({ _id: req.params.id, ownerId: req.user._id });
 
         if(!product){
-            return res.status(404).json({message: "Product not found"});
+            return res.status(404).json({ message: "Product not found or unauthorized" });
         }
 
-        res.status(200).json({message: "Product deleted successfully"});
+        res.status(200).json({ message: "Product deleted successfully" });
     }catch(error){
         console.error(error);
-        res.status(500).json({message: "Server error", error: error.message});
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
