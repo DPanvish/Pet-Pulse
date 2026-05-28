@@ -48,11 +48,11 @@ const saleSchema = new mongoose.Schema({
         enum: ["Cash", "Card", "Upi"],
         required: true,
     },
-    soldBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    }
+    // soldBy: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "User",
+    //     required: true,
+    // }
 }, {timestamps: true});
 
 export default mongoose.model("Sale", saleSchema);

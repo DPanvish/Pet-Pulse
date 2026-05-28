@@ -54,7 +54,7 @@ export const createSale = async (req, res) => {
                 discount,
                 tax,
                 paymentMethod,
-                soldBy: req.user._id
+                // soldBy: req.user._id
             }], { session });
 
             for(const item of products){
@@ -80,7 +80,7 @@ export const createSale = async (req, res) => {
                     previousStock,
                     newStock,
                     notes: `Sold in invoice ${invoiceNumber}`,
-                    createdBy: req.user._id
+                    // createdBy: req.user._id
                 }], { session });
             }
             
