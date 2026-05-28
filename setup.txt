@@ -139,3 +139,24 @@ Why this was used:
 Development dependency added:
   nodemon
     Watches backend files and restarts server.js whenever code changes.
+
+Step 7: Install backend file upload, cloud media, and email dependencies
+Command used:
+  cd backend
+  npm install cloudinary multer multer-storage-cloudinary nodemailer
+
+Why this was used:
+  Adds support for receiving uploaded files, storing media in Cloudinary, and sending emails from the backend.
+
+Dependencies added:
+  cloudinary
+    Provides the Cloudinary SDK for uploading, managing, and retrieving hosted media assets such as pet images or profile photos.
+
+  multer
+    Handles multipart/form-data requests, which are commonly used for file uploads in Express APIs.
+
+  multer-storage-cloudinary
+    Connects Multer uploads directly to Cloudinary storage instead of saving uploaded files only on the local server.
+
+  nodemailer
+    Sends emails from the backend, such as verification emails, password reset emails, notifications, or contact messages.
