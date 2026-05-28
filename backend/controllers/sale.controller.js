@@ -54,7 +54,6 @@ export const createSale = async (req, res) => {
                 discount,
                 tax,
                 paymentMethod,
-                soldBy: req.user._id
             }], { session });
 
             for(const item of products){
@@ -80,7 +79,6 @@ export const createSale = async (req, res) => {
                     previousStock,
                     newStock,
                     notes: `Sold in invoice ${invoiceNumber}`,
-                    createdBy: req.user._id
                 }], { session });
             }
             
@@ -117,9 +115,8 @@ export const getSales = async (req, res) => {
 // @route   GET /api/sales/:id
 export const getSaleById = async (req, res) => {
     try{
-        const sale = await Sale.findOne({ _id: req.params.id, ownerId: req.user._id })
-            .populate('products.product', 'name SKU images')
-            .populate('soldBy', 'name email');
+        const sale = await Sale.findOne({_id: req.params.id, ownerId: req.user._id})
+            .populate('products.product', 'name SKU images');
 
         if(!sale){
             return res.status(404).json({ message: "Sale not found or unauthorized" });
