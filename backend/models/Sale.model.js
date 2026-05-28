@@ -15,23 +15,28 @@ const saleSchema = new mongoose.Schema({
         quantity: {
             type: Number,
             required: true,
+            min: 1,
         },
         sellingPriceAtTimeOfSale: {
             type: Number,
             required: true,
+            min: 0,
         }
     }],
     totalAmount: {
         type: Number,
         required: true,
+        min: 0,
     },
     discount: {
         type: Number,
         default: 0,
+        min: 0,
     },
     tax: {
         type: Number,
         default: 0,
+        min: 0,
     },
     paymentMethod: {
         type: String,

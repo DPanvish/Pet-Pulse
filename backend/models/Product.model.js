@@ -4,6 +4,7 @@ const productSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
         index: true,
     },
     category: {
@@ -20,19 +21,23 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0,
+        min: 0,
     },
     purchasePrice: {
         type: Number,
         required: true,
+        min: 0,
     },
     sellingPrice: {
         type: Number,
         required: true,
+        min: 0,
     },
     minStockLevel: {
         type: Number,
         required: true,
-        default: 5,
+        default: 0,
+        min: 0,
     },
     supplier: {
         type: String,

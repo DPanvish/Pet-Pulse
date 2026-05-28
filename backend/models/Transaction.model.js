@@ -14,14 +14,17 @@ const transactionSchema = new mongoose.Schema({
     quantity: {
         type: Number,
         required: true,
+        min: 1,
     },
     previousStock: {
         type: Number,
         required: true,
+        min: 0,
     },
     newStock: {
         type: Number,
         required: true,
+        min: 0,
     },
     notes: {
         type: String,
