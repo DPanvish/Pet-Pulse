@@ -27,7 +27,6 @@ export const createSale = async (req, res) => {
                 }
 
                 if(product.currentQuantity < item.quantity){
-                    // FIXED: Changed 'dbProduct' to 'product'
                     return res.status(400).json({
                         msg: `Insufficient stock for ${product.name}. Only ${product.currentQuantity} left.`
                     });
@@ -39,7 +38,8 @@ export const createSale = async (req, res) => {
                 processedProducts.push({
                     product: product._id,
                     quantity: item.quantity,
-                    sellingPriceAtTimeOfSale: product.sellingPrice
+                    sellingPriceAtTimeOfSale: product.sellingPrice,
+                    purchasePriceAtTimeOfSale: product.purchasePrice
                 });
             }
 
@@ -54,7 +54,7 @@ export const createSale = async (req, res) => {
                 discount,
                 tax,
                 paymentMethod,
-                // soldBy: req.user._id
+                soldBy: req.user._id
             }], { session });
 
             for(const item of products){
@@ -80,7 +80,7 @@ export const createSale = async (req, res) => {
                     previousStock,
                     newStock,
                     notes: `Sold in invoice ${invoiceNumber}`,
-                    // createdBy: req.user._id
+                    createdBy: req.user._id
                 }], { session });
             }
             

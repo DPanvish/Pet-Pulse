@@ -8,18 +8,33 @@ export const getDashboardMetrics = async(req, res) => {
         const ownerId = req.user._id;
 
         const salesData = await Sale.aggregate([
-            {$match: {ownerId}},
+            { $match: { ownerId } },
+            { $unwind: "$products" }, // Break apart the cart to calculate individual item costs
             {
+                // Group back by Invoice to get the true Revenue and total Cost per sale
+                $group: {
+                    _id: "$_id",
+                    invoiceRevenue: { $first: "$totalAmount" }, // Final amount paid (after tax/discount)
+                    invoiceCost: { 
+                        $sum: { $multiply: ["$products.quantity", "$products.purchasePriceAtTimeOfSale"] } 
+                    }
+                }
+            },
+            {
+                // Group everything together for the grand total
                 $group: {
                     _id: null,
-                    totalRevenue: {$num: "$totalAmount"},
-                    totalSales: {$sum: 1}
+                    totalRevenue: { $sum: "$invoiceRevenue" },
+                    totalCost: { $sum: "$invoiceCost" },
+                    totalSales: { $sum: 1 }
                 }
             }
         ]);
 
         const totalRevenue = salesData.length > 0 ? salesData[0].totalRevenue : 0;
+        const totalCost = salesData.length > 0 ? salesData[0].totalCost : 0;
         const totalSales = salesData.length > 0 ? salesData[0].totalSales : 0;
+        const netProfit = totalRevenue - totalCost;
 
         const lowStockCount = await Product.countDocuments({
             ownerId,
@@ -28,11 +43,16 @@ export const getDashboardMetrics = async(req, res) => {
 
         const totalProducts = await Product.countDocuments({ownerId});
 
-        const recentSales = await Product.countDocuments({ownerId}).sort({createdAt: -1}).limit(5).populate('products.product', 'name');
+        const recentSales = await Sale.find({ ownerId })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('products.product', 'name');
 
         res.status(200).json({
             totalRevenue,
             totalSales,
+            totalCost,
+            netProfit,
             lowStockCount,
             totalProducts,
             recentSales
@@ -77,7 +97,7 @@ export const getTopProducts = async (req, res) => {
             productId: item._id,
             name: item.productDetails.name,
             SKU: item.productDetails.SKU,
-            image: item.productDetails.images[0] || "",
+            image: item.productDetails.images?.[0] || "",
             totalQuantitySold: item.totalQuantitySold,
             revenueGenerated: item.revenueGenerated
         }));
