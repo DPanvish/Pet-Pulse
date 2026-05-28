@@ -160,3 +160,24 @@ Dependencies added:
 
   nodemailer
     Sends emails from the backend, such as verification emails, password reset emails, notifications, or contact messages.
+
+Step 8: Install frontend API, server-state, and client-state libraries
+Command used:
+  cd client
+  npm install axios @tanstack/react-query @tanstack/react-query-devtools zustand
+
+Why this was used:
+  Adds frontend tools for calling backend APIs, caching server responses, debugging data-fetching behavior, and managing shared client-side state.
+
+Dependencies added:
+  axios
+    Provides a promise-based HTTP client for making requests from the React app to the backend API.
+
+  @tanstack/react-query
+    Manages server state such as API loading, caching, refetching, retries, and synchronization with backend data.
+
+  @tanstack/react-query-devtools
+    Provides development tools for inspecting React Query caches, request states, and refetch behavior while building the app.
+
+  zustand
+    Provides lightweight client-side state management for shared UI/session state that does not belong in the server cache.
