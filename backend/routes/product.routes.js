@@ -1,6 +1,6 @@
 import express from 'express';
 import { createProduct, updateProduct, getLowStockProducts, deleteProduct, getProducts } from "../controllers/product.controller.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/auth.middleware.js";
 import { upload } from "../config/cloudinary.js";
 
 const router = express.Router();

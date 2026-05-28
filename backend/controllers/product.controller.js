@@ -1,4 +1,4 @@
-import Product from "../models/product.model.js";
+import Product from "../models/Product.model.js";
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -54,7 +54,7 @@ export const getProducts = async(req, res) => {
             queryObj.category = category;
         }
 
-        const products = await Product.find(queryObj).sort({created: -1});
+        const products = await Product.find(queryObj).sort({createdAt: -1});
         res.status(200).json(products);
     }catch(error){
         console.error(error);
