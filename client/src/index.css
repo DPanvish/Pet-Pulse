@@ -1,52 +1,73 @@
 @import "tailwindcss";
 
+/* 1. Import Premium SaaS Font */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @theme {
-  /* Custom Font */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  /* Replace default sans with Plus Jakarta Sans */
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  /* Custom Color Palette (Neon Emerald & Deep Neutrals) */
-  --color-brand-50: #ecfdf5;
-  --color-brand-400: #34d399;
-  --color-brand-500: #10b981; /* Primary App Color */
-  --color-brand-600: #059669;
+  /* Premium SaaS Palette: Deep Zinc & Vibrant Indigo */
+  --color-brand-50: #eef2ff;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1; /* Primary Indigo */
+  --color-brand-600: #4f46e5;
   
-  --color-dark-900: #121212;
-  --color-dark-950: #0a0a0a;
+  --color-surface-800: #27272a; /* Zinc 800 */
+  --color-surface-900: #18181b; /* Zinc 900 */
+  --color-surface-950: #09090b; /* Zinc 950 - Main Background */
 
-  /* Custom Animations for UI Polish */
+  /* Refined Animations */
   --animate-fade-in: fadeIn 0.5s ease-out forwards;
-  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-up: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-blob: blob 7s infinite;
 }
 
-/* Base resets and background */
 @layer base {
   body {
-    @apply bg-dark-950 text-neutral-200 antialiased overflow-x-hidden;
+    /* Beautiful text rendering, dark background, and custom selection color */
+    @apply bg-surface-950 text-neutral-300 antialiased overflow-x-hidden selection:bg-brand-500/30 selection:text-brand-50;
   }
 }
 
-/* Custom UI Utility Classes */
 @layer utilities {
+
+  /* Ultra-refined glass effect with high blur and low opacity */
   .glass-panel {
-    @apply bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 shadow-2xl;
+    @apply bg-surface-900/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)];
   }
   
-  .neon-glow {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), inset 0 0 20px rgba(16, 185, 129, 0.05);
+  /* Subtle inner white line to give a 3D bevel effect (Apple/Linear style) */
+  .inner-highlight {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   }
 
+  /* Diffused ambient light instead of harsh neon */
+  .premium-glow {
+    box-shadow: 0 0 80px -20px rgba(99, 102, 241, 0.15);
+  }
+
+  /* Sophisticated Input Fields */
   .input-field {
-    @apply w-full bg-neutral-950/50 border border-neutral-800 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-neutral-600;
+    @apply w-full bg-black/20 border border-white/10 text-white rounded-xl py-3 pl-10 pr-4 
+           focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 
+           transition-all duration-300 placeholder:text-neutral-600 shadow-inner;
+  }
+
+  /* Master Primary Button */
+  .btn-primary {
+    @apply w-full bg-brand-500 hover:bg-brand-400 text-white font-semibold py-3 rounded-xl 
+           transition-all duration-300 flex items-center justify-center
+           shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)]
+           hover:shadow-[0_0_25px_-5px_rgba(99,102,241,0.6)] 
+           active:scale-[0.98] border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 }
 
-/* Keyframes mapped to the @theme animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Fluid Blob Animation for the background meshes */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }
