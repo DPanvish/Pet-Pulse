@@ -47,6 +47,12 @@ export const verifyAndRegister = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid or expired OTP' });
         }
 
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            await Otp.deleteMany({ email });
+            return res.status(409).json({ msg: 'Account already exists' });
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
