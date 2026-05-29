@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-    Search, Plus, Filter, MoreVertical, AlertCircle, PackageOpen, Loader2 
-} from 'lucide-react';
+import { Search, Plus, Filter, MoreVertical, AlertCircle, PackageOpen, Loader2 } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
+import AddProductDrawer from '../components/AddProductDrawer';
+
 
 const Inventory = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const { data: products, isLoading, isError } = useProducts(searchQuery, categoryFilter);
 
@@ -24,7 +25,10 @@ const Inventory = () => {
                     <h1 className="text-3xl font-bold text-foreground tracking-tight">Inventory</h1>
                     <p className="text-muted mt-1">Manage your store's products, pricing, and stock levels.</p>
                 </div>
-                <button className="btn-primary w-auto px-6 whitespace-nowrap">
+                <button 
+                    onClick={() => setIsDrawerOpen(true)} // Added onClick!
+                    className="btn-primary w-auto px-6 whitespace-nowrap"
+                >
                     <Plus size={18} className="mr-2" />
                     Add Product
                 </button>
@@ -159,6 +163,11 @@ const Inventory = () => {
                     </table>
                 </div>
             </div>
+
+            <AddProductDrawer 
+                isOpen={isDrawerOpen} 
+                onClose={() => setIsDrawerOpen(false)} 
+            />
         </div>
     );
 };
