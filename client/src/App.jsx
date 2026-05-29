@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useAuthStore } from './store/authStore';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DashboardLayout from './components/DashboardLayout';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -15,17 +16,9 @@ const queryClient = new QueryClient({
     },
 });
 
-const Dashboard = () => (
-    <div className="min-h-screen bg-neutral-950 text-white p-10">
-        <h1 className="text-3xl font-bold text-emerald-400">Welcome to PetPulse Dashboard</h1>
-        <button 
-            onClick={() => useAuthStore.getState().logout()} 
-            className="mt-4 bg-red-500/20 text-red-400 px-4 py-2 rounded-lg"
-        >
-            Logout
-        </button>
-    </div>
-);
+const Dashboard = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-white">Dashboard Overview</h1></div>;
+const Inventory = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-white">Inventory Management</h1></div>;
+const POS = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-white">Point of Sale</h1></div>;
 
 const ProtectedRoute = ({ children }) => {
     const { token } = useAuthStore();
@@ -42,9 +35,14 @@ const App = () => {
                         <Route path="/register" element={<Register />} />
                         <Route path="/" element={
                             <ProtectedRoute>
-                                <Dashboard />
+                                <DashboardLayout />
                             </ProtectedRoute>
-                        } />
+                        }>
+                            {/* The <Outlet /> in DashboardLayout will render these based on the URL */}
+                            <Route index element={<Dashboard />} />
+                            <Route path="inventory" element={<Inventory />} />
+                            <Route path="pos" element={<POS />} />
+                        </Route>
                     </Routes>
                 </Router>
             </div>
