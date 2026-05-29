@@ -1,21 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../utils/api';
 
-export const useAnalytics = () => {
+export const useAnalytics = (timeRange = 'month') => {
     const dashboardQuery = useQuery({
-        queryKey: ['analytics', 'dashboard'],
+        // Adding timeRange to the queryKey means it auto-refetches when the range changes!
+        queryKey: ['analytics', 'dashboard', timeRange],
         queryFn: async () => {
-            const { data } = await api.get('/analytics/dashboard');
+            const { data } = await api.get('/analytics/dashboard', {
+                params: { range: timeRange } // Sent to backend as ?range=week
+            });
             return data;
-        }
+        },
+        placeholderData: (prev) => prev, // Prevents UI flickering while loading new data
     });
 
     const topProductsQuery = useQuery({
-        queryKey: ['analytics', 'top-products'],
+        queryKey: ['analytics', 'top-products', timeRange],
         queryFn: async () => {
-            const { data } = await api.get('/analytics/top-products');
+            const { data } = await api.get('/analytics/top-products', {
+                params: { range: timeRange }
+            });
             return data;
-        }
+        },
+        placeholderData: (prev) => prev,
     });
 
     return {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingUp, PackageMinus, Activity, ArrowUpRight, Package, Receipt, TrendingDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -35,15 +36,9 @@ const StatCard = ({ title, value, icon: Icon, trend, colorClass }) => (
 );
 
 const Dashboard = () => {
-    const { dashboard, topProducts, isLoading, isError } = useAnalytics();
-
-    if (isLoading) {
-        return (
-            <div className="h-full flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-500"></div>
-            </div>
-        );
-    }
+    const [timeRange, setTimeRange] = useState('month');
+    
+    const { dashboard, topProducts, isLoading, isError } = useAnalytics(timeRange);
 
     if (isError) {
         return (
@@ -56,14 +51,43 @@ const Dashboard = () => {
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
             
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-foreground tracking-tight">Store Overview</h1>
-                <p className="text-muted mt-1">Track your revenue, profit, and inventory in real-time.</p>
+            {/* Header & Segmented Control */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Store Overview</h1>
+                    <p className="text-muted mt-1">Track your revenue, profit, and inventory in real-time.</p>
+                </div>
+
+                {/* THE PREMIUM TIME TOGGLE */}
+                <div className="flex p-1 bg-input/40 backdrop-blur-md rounded-xl border border-border shrink-0">
+                    {[
+                        { id: 'today', label: 'Today' },
+                        { id: 'week', label: '7 Days' },
+                        { id: 'month', label: '30 Days' },
+                        { id: 'year', label: '1 Year' }
+                    ].map((range) => (
+                        <button
+                            key={range.id}
+                            onClick={() => setTimeRange(range.id)}
+                            className={`relative px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-300 ${
+                                timeRange === range.id ? 'text-foreground' : 'text-muted hover:text-foreground'
+                            }`}
+                        >
+                            {timeRange === range.id && (
+                                <motion.div 
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-panel border border-white/10 rounded-lg shadow-sm"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <span className="relative z-10">{range.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            {/* Top KPI Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Top KPI Metrics Grid with Loading Transition */}
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-opacity duration-300 ${isLoading ? 'opacity-50 grayscale' : 'opacity-100'}`}>
                 <StatCard 
                     title="Total Revenue" 
                     value={formatCurrency(dashboard?.totalRevenue)} 
@@ -91,7 +115,7 @@ const Dashboard = () => {
             </div>
 
             {/* Main Charts & Activity Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 transition-opacity duration-300 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
                 
                 {/* Top Products Bar Chart */}
                 <div className="glass-panel inner-highlight p-6 rounded-2xl lg:col-span-2">
@@ -136,7 +160,7 @@ const Dashboard = () => {
                             </ResponsiveContainer>
                         ) : (
                             <div className="h-full flex items-center justify-center text-muted">
-                                No sales data available yet to generate charts.
+                                No sales data available for this timeframe.
                             </div>
                         )}
                     </div>
@@ -154,10 +178,10 @@ const Dashboard = () => {
                                 <div key={sale._id} className="flex justify-between items-center p-3 rounded-xl hover:bg-input border border-transparent hover:border-border transition-colors">
                                     <div className="flex flex-col overflow-hidden">
                                         <span className="text-sm font-semibold text-foreground truncate">
-                                            {sale.invoiceNumber}
+                                            {sale.invoiceNumber || `INV-${sale._id.substring(18,24).toUpperCase()}`}
                                         </span>
                                         <span className="text-xs text-muted truncate">
-                                            {sale.products.length} {sale.products.length === 1 ? 'item' : 'items'}
+                                            {sale.products?.length || 1} {sale.products?.length === 1 ? 'item' : 'items'}
                                         </span>
                                     </div>
                                     <div className="text-right">
@@ -165,7 +189,8 @@ const Dashboard = () => {
                                             +{formatCurrency(sale.totalAmount)}
                                         </span>
                                         <span className="block text-xs text-muted">
-                                            {new Date(sale.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {/* Changed to locale date string to show Month/Day for broader timeframes */}
+                                            {new Date(sale.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                                         </span>
                                     </div>
                                 </div>
