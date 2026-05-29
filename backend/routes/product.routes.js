@@ -6,9 +6,9 @@ import { upload } from "../config/cloudinary.js";
 const router = express.Router();
 
 router.get('/', protect, getProducts);
-router.post('/', protect, upload.array('images', 5), createProduct);
+router.post('/', protect, upload.single('images'), createProduct);
 router.get('/low-stock', protect, getLowStockProducts);
-router.put('/:id', protect, upload.array('images', 5), updateProduct);
+router.put('/:id', protect, upload.single('images'), updateProduct);
 router.delete('/:id', protect, deleteProduct);
 
 export default router;
