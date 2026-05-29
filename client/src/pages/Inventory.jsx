@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Plus, Filter, MoreVertical, AlertCircle, PackageOpen, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Plus, Filter, MoreVertical, AlertCircle, PackageOpen, Loader2, ChevronDown, Check } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import AddProductDrawer from '../components/AddProductDrawer';
 
@@ -9,12 +9,24 @@ const Inventory = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
     const { data: products, isLoading, isError } = useProducts(searchQuery, categoryFilter);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
     };
+
+    const displayCategories = useMemo(() => {
+        const defaults = [
+            'Pet Food', 'Fish & Aquatics', 'Birds & Supplies', 
+            'Dogs & Cats', 'Small Pets (Hamsters/Rabbits)',
+            'Toys & Accessories', 'Health & Grooming'
+        ];
+        if (!products) return defaults;
+        const existing = [...new Set(products.map(p => p.category))];
+        return [...new Set([...defaults, ...existing])];
+    }, [products]);
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
@@ -47,19 +59,57 @@ const Inventory = () => {
                     />
                 </div>
                 
-                <div className="relative min-w-[200px]">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
-                    <select 
-                        value={categoryFilter}
-                        onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="input-field appearance-none"
+                <div className="relative min-w-[220px]">
+                    <button 
+                        type="button" 
+                        onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                        className="input-field flex justify-between items-center text-left w-full pl-10"
                     >
-                        <option value="">All Categories</option>
-                        <option value="Food">Food & Treats</option>
-                        <option value="Toys">Toys & Accessories</option>
-                        <option value="Medicine">Health & Medicine</option>
-                        <option value="Grooming">Grooming</option>
-                    </select>
+                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                        <span className={categoryFilter ? "text-foreground" : "text-muted"}>
+                            {categoryFilter || "All Categories"}
+                        </span>
+                        <ChevronDown size={16} className={`text-muted transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    <AnimatePresence>
+                        {isCategoryOpen && (
+                            <motion.ul
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="absolute z-50 w-full mt-2 bg-background border border-border rounded-xl shadow-2xl max-h-60 overflow-y-auto custom-scrollbar overflow-hidden"
+                            >
+                                {/* Option to clear the filter */}
+                                <li 
+                                    onClick={() => {
+                                        setCategoryFilter('');
+                                        setIsCategoryOpen(false);
+                                    }} 
+                                    className="px-4 py-3 hover:bg-input cursor-pointer text-sm text-foreground flex items-center justify-between transition-colors border-b border-white/5"
+                                >
+                                    All Categories
+                                    {categoryFilter === '' && <Check size={16} className="text-brand-500" />}
+                                </li>
+                                
+                                {/* Dynamic Categories */}
+                                {displayCategories.map(cat => (
+                                    <li 
+                                        key={cat} 
+                                        onClick={() => {
+                                            setCategoryFilter(cat);
+                                            setIsCategoryOpen(false);
+                                        }} 
+                                        className="px-4 py-3 hover:bg-input cursor-pointer text-sm text-foreground flex items-center justify-between transition-colors border-b border-white/5 last:border-0"
+                                    >
+                                        {cat}
+                                        {categoryFilter === cat && <Check size={16} className="text-brand-500" />}
+                                    </li>
+                                ))}
+                            </motion.ul>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 

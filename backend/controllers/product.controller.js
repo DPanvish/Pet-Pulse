@@ -12,8 +12,8 @@ export const createProduct = async (req, res) => {
         const SKU = `${prefix}-${randomNum}`;
 
         let imageUrls = [];
-        if(req.files && req.files.length > 0){
-            imageUrls = req.files.map(file => file.path);
+        if (req.file) {
+            imageUrls = [req.file.path];
         }
 
         const product = await Product.create({
