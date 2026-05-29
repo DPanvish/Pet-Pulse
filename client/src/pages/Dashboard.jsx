@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { DollarSign, TrendingUp, PackageMinus, Activity, ArrowUpRight, Package, Receipt } from 'lucide-react';
+import { DollarSign, TrendingUp, PackageMinus, Activity, ArrowUpRight, Package, Receipt, TrendingDown } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useAnalytics } from '../hooks/useAnalytics';
 
@@ -73,8 +73,8 @@ const Dashboard = () => {
                 <StatCard 
                     title="Net Profit" 
                     value={formatCurrency(dashboard?.netProfit)} 
-                    icon={TrendingUp} 
-                    colorClass="bg-emerald-500"
+                    icon={dashboard?.netProfit < 0 ? TrendingDown : TrendingUp} 
+                    colorClass={dashboard?.netProfit < 0 ? "bg-red-500" : "bg-emerald-500"}
                 />
                 <StatCard 
                     title="Total Sales" 
@@ -102,7 +102,7 @@ const Dashboard = () => {
                     <div className="h-[300px] w-full">
                         {topProducts?.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={topProducts} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <BarChart data={topProducts?.slice(0, 5)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                                     <XAxis 
                                         dataKey="name" 
