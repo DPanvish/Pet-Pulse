@@ -10,6 +10,7 @@ import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import POS from './pages/POS';
+import Transactions from './pages/Transactions';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -50,6 +51,7 @@ const App = () => {
                             <Route index element={<Dashboard />} />
                             <Route path="inventory" element={<Inventory />} />
                             <Route path="pos" element={<POS />} />
+                            <Route path="/transactions" element={<Transactions />} />
                         </Route>
                     </Routes>
                 </Router>

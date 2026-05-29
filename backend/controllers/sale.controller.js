@@ -105,16 +105,47 @@ export const createSale = async (req, res) => {
     }
 };
 
-// @desc    Get all sales history (with optional date filtering)
+/// @desc    Get all sales history (with date filtering)
 // @route   GET /api/sales
 export const getSales = async (req, res) => {
-    try{
-        const sales = await Sale.find({ ownerId: req.user._id })
+    try {
+        const { range } = req.query;
+
+        let query = { ownerId: req.user._id };
+
+        if (range && range !== 'all') {
+            const startDate = new Date();
+            
+            switch (range) {
+                case 'today':
+                    startDate.setHours(0, 0, 0, 0); 
+                    break;
+                case 'week':
+                    startDate.setDate(startDate.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(startDate.getMonth() - 1);
+                    break;
+                case '6months':
+                    startDate.setMonth(startDate.getMonth() - 6);
+                    break;
+                case 'year':
+                    startDate.setFullYear(startDate.getFullYear() - 1);
+                    break;
+                default:
+                    // Fallback to month if something weird is sent
+                    startDate.setMonth(startDate.getMonth() - 1); 
+            }
+
+            query.createdAt = { $gte: startDate };
+        }
+
+        const sales = await Sale.find(query)
             .populate('products.product', 'name SKU images')
             .sort({ createdAt: -1 });
 
         res.status(200).json(sales);
-    }catch(error){
+    } catch(error) {
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
@@ -123,7 +154,7 @@ export const getSales = async (req, res) => {
 // @desc    Get a single sale by ID (For printing receipts)
 // @route   GET /api/sales/:id
 export const getSaleById = async (req, res) => {
-    try{
+    try {
         const sale = await Sale.findOne({_id: req.params.id, ownerId: req.user._id})
             .populate('products.product', 'name SKU images');
 
@@ -132,7 +163,7 @@ export const getSaleById = async (req, res) => {
         }
 
         res.status(200).json(sale);
-    }catch(error){
+    } catch(error) {
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }

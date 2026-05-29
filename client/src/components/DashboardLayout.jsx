@@ -3,14 +3,16 @@ import { useAuthStore } from "../store/authStore.js";
 import { useThemeStore } from '../store/themeStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useNavigate, Outlet } from "react-router-dom";
-import { LayoutDashboard, PackageSearch, ShoppingCart, PawPrint, LogOut, Menu, Sun, Moon } from "lucide-react";
+// UPDATED: Added FileText to the imports
+import { LayoutDashboard, PackageSearch, ShoppingCart, PawPrint, LogOut, Menu, Sun, Moon, FileText } from "lucide-react";
 
+// UPDATED: Added Transactions to the navigation array
 const navLinks = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Inventory', path: '/inventory', icon: PackageSearch },
     { name: 'Point of Sale', path: '/pos', icon: ShoppingCart },
+    { name: 'Transactions', path: '/transactions', icon: FileText },
 ];
-
 
 const SidebarContent = ({ user, handleLogout, closeMobileMenu }) => {
     const { theme, toggleTheme } = useThemeStore();
@@ -79,7 +81,6 @@ const SidebarContent = ({ user, handleLogout, closeMobileMenu }) => {
         </div>
     );
 };
-
 
 const DashboardLayout = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
