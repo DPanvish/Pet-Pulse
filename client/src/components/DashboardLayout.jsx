@@ -128,6 +128,7 @@ const DashboardLayout = () => {
                         <span className="text-xl font-bold text-white tracking-tight">PetPulse</span>
                     </div>
                     <button
+                        aria-label="Open navigation menu"
                         onClick={() => setIsMobileMenuOpen(true)}
                         className="p-2 text-neutral-400 hover:text-white transition-colors"
                     >
