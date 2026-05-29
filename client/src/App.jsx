@@ -7,6 +7,7 @@ import { useThemeStore } from './store/themeStore';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './components/DashboardLayout';
+import Dashboard from './pages/Dashboard';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -18,7 +19,6 @@ const queryClient = new QueryClient({
     },
 });
 
-const Dashboard = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Dashboard Overview</h1></div>;
 const Inventory = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Inventory Management</h1></div>;
 const POS = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Point of Sale</h1></div>;
 
