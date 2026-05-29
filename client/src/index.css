@@ -33,7 +33,7 @@
     --panel-bg: rgba(255, 255, 255, 0.7);
     --input-bg: rgba(0, 0, 0, 0.03);
     
-    --glass-shadow: 0 8px 32px 0 rgba(0,0,0,0.05);
+    --glow-shadow: 0 0 60px -15px rgba(99, 102, 241, 0.25);
     --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 1);
     --glow-shadow: 0 0 60px -15px rgba(99, 102, 241, 0.15);
   }
@@ -47,7 +47,7 @@
     --panel-bg: rgba(24, 24, 27, 0.4);
     --input-bg: rgba(0, 0, 0, 0.2);
     
-    --glass-shadow: 0 8px 32px 0 rgba(0,0,0,0.36);
+    --glow-shadow: 0 0 80px -20px rgba(99, 102, 241, 0.30);
     --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
     --glow-shadow: 0 0 80px -20px rgba(99, 102, 241, 0.15);
   }
