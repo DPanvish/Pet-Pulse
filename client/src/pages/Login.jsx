@@ -16,7 +16,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-surface-950">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
             
             {/* Premium Ambient Background Mesh */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-brand-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob pointer-events-none" />
@@ -35,8 +35,8 @@ const Login = () => {
                     >
                         <PawPrint size={28} />
                     </motion.div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">PetPulse</h2>
-                    <p className="text-neutral-400 mt-2 text-sm font-medium">Owner Portal Login</p>
+                    <h2 className="text-3xl font-bold text-foreground tracking-tight">PetPulse</h2>
+                    <p className="text-muted mt-2 text-sm font-medium">Owner Portal Login</p>
                 </div>
 
                 {loginMutation.isError && (
@@ -50,7 +50,7 @@ const Login = () => {
 
                 <form onSubmit={handleLogin} className="space-y-5">
                     <div className="relative group">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                         <input 
                             type="email" required placeholder="Email Address"
                             value={email} onChange={(e) => setEmail(e.target.value)}
@@ -59,7 +59,7 @@ const Login = () => {
                     </div>
 
                     <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                         <input 
                             type="password" required placeholder="Password"
                             value={password} onChange={(e) => setPassword(e.target.value)}
@@ -77,7 +77,7 @@ const Login = () => {
                     </div>
                 </form>
 
-                <p className="text-center text-neutral-500 mt-8 text-sm font-medium">
+                <p className="text-center text-muted mt-8 text-sm font-medium">
                     Don't have a store account?{' '}
                     <Link to="/register" className="text-brand-400 hover:text-brand-300 transition-colors">
                         Register here

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useAuthStore } from "../store/authStore.js";
+import { useThemeStore } from '../store/themeStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useNavigate, Outlet } from "react-router-dom";
-import { LayoutDashboard, PackageSearch, ShoppingCart, PawPrint, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, PackageSearch, ShoppingCart, PawPrint, LogOut, Menu, Sun, Moon } from "lucide-react";
 
 const navLinks = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -11,59 +12,73 @@ const navLinks = [
 ];
 
 
-const SidebarContent = ({ user, handleLogout, closeMobileMenu }) => (
-    <div className="flex flex-col h-full bg-surface-900/40 backdrop-blur-2xl border-r border-white/5">
-        {/* Brand Header */}
-        <div className="h-20 flex items-center px-6 border-b border-white/5">
-            <div className="w-8 h-8 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center mr-3 shadow-[inset_0_0_10px_rgba(99,102,241,0.2)]">
-                <PawPrint size={18} />
-            </div>
-            <span className="text-xl font-bold text-white tracking-tight">PetPulse</span>
-        </div>
+const SidebarContent = ({ user, handleLogout, closeMobileMenu }) => {
+    const { theme, toggleTheme } = useThemeStore();
 
-        {/* Navigation Links */}
-        <div className="flex-1 px-4 py-6 space-y-2">
-            {navLinks.map((link) => (
-                <NavLink
-                    key={link.name}
-                    to={link.path}
-                    onClick={closeMobileMenu} // Trigger the prop function
-                    className={({ isActive }) => `
-                        flex items-center px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm
-                        ${isActive 
-                            ? 'bg-brand-500/10 text-brand-400 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)]' 
-                            : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                        }
-                    `}
+    return(
+        <div className="flex flex-col h-full bg-panel backdrop-blur-2xl border-r border-border transition-colors duration-300">
+            {/* Brand Header */}
+            <div className="h-20 flex items-center justify-between px-6 border-b border-border">
+                <div className="flex items-center">
+                    <div className="w-8 h-8 bg-brand-500/20 text-brand-500 rounded-xl flex items-center justify-center mr-3">
+                        <PawPrint size={18} />
+                    </div>
+                    <span className="text-xl font-bold text-foreground tracking-tight">PetPulse</span>
+                </div>
+                
+                {/* THEME TOGGLE BUTTON */}
+                <button 
+                    onClick={toggleTheme}
+                    className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-input transition-colors"
                 >
-                    <link.icon size={18} className="mr-3" />
-                    {link.name}
-                </NavLink>
-            ))}
-        </div>
-
-        {/* User Profile & Logout */}
-        <div className="p-4 border-t border-white/5">
-            <div className="flex items-center px-4 py-3 mb-2 rounded-xl bg-black/20 border border-white/5">
-                <div className="w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center text-brand-400 font-bold mr-3">
-                    {user?.name?.charAt(0).toUpperCase() || 'O'}
-                </div>
-                <div className="flex-1 overflow-hidden">
-                    <p className="text-sm font-semibold text-white truncate">{user?.name || 'Store Owner'}</p>
-                    <p className="text-xs text-neutral-500 truncate">Admin Portal</p>
-                </div>
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
             </div>
-            
-            <button 
-                onClick={handleLogout}
-                className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-colors"
-            >
-                <LogOut size={18} className="mr-3" />
-                Sign Out
-            </button>
+
+            {/* Navigation Links */}
+            <div className="flex-1 px-4 py-6 space-y-2">
+                {navLinks.map((link) => (
+                    <NavLink
+                        key={link.name}
+                        to={link.path}
+                        onClick={closeMobileMenu}
+                        className={({ isActive }) => `
+                            flex items-center px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm
+                            ${isActive 
+                                ? 'bg-brand-500/10 text-brand-500' 
+                                : 'text-muted hover:text-foreground hover:bg-input'
+                            }
+                        `}
+                    >
+                        <link.icon size={18} className="mr-3" />
+                        {link.name}
+                    </NavLink>
+                ))}
+            </div>
+
+            {/* User Profile & Logout */}
+            <div className="p-4 border-t border-border">
+                <div className="flex items-center px-4 py-3 mb-2 rounded-xl bg-input border border-border">
+                    <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center text-brand-500 font-bold mr-3 border border-border">
+                        {user?.name?.charAt(0).toUpperCase() || 'O'}
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                        <p className="text-sm font-semibold text-foreground truncate">{user?.name || 'Store Owner'}</p>
+                        <p className="text-xs text-muted truncate">Admin Portal</p>
+                    </div>
+                </div>
+                
+                <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                >
+                    <LogOut size={18} className="mr-3" />
+                    Sign Out
+                </button>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 
 const DashboardLayout = () => {
@@ -79,7 +94,7 @@ const DashboardLayout = () => {
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
     return (
-        <div className="min-h-screen bg-surface-950 flex overflow-hidden">
+        <div className="min-h-screen bg-background flex overflow-hidden">
 
             {/* Desktop Sidebar (Hidden on Mobile) */}
             <aside className="hidden md:block w-72 flex-shrink-0 z-20">
@@ -120,17 +135,17 @@ const DashboardLayout = () => {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/5 rounded-full mix-blend-screen filter blur-[120px] pointer-events-none" />
 
                 {/* Mobile Topbar (Hamburger Menu) */}
-                <header className="h-20 flex items-center justify-between px-6 border-b border-white/5 md:hidden bg-surface-950/80 backdrop-blur-md sticky top-0 z-30">
+                <header className="h-20 flex items-center justify-between px-6 border-b border-white/5 md:hidden bg-background/80 backdrop-blur-md sticky top-0 z-30">
                     <div className="flex items-center">
                         <div className="w-8 h-8 bg-brand-500/20 text-brand-400 rounded-xl flex items-center justify-center mr-3">
                             <PawPrint size={18} />
                         </div>
-                        <span className="text-xl font-bold text-white tracking-tight">PetPulse</span>
+                        <span className="text-xl font-bold text-foreground tracking-tight">PetPulse</span>
                     </div>
                     <button
                         aria-label="Open navigation menu"
                         onClick={() => setIsMobileMenuOpen(true)}
-                        className="p-2 text-neutral-400 hover:text-white transition-colors"
+                        className="p-2 text-muted hover:text-foreground transition-colors"
                     >
                         <Menu size={24} />
                     </button>
