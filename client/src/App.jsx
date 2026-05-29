@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
+import Inventory from './pages/Inventory';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -19,7 +20,6 @@ const queryClient = new QueryClient({
     },
 });
 
-const Inventory = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Inventory Management</h1></div>;
 const POS = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Point of Sale</h1></div>;
 
 const ProtectedRoute = ({ children }) => {
