@@ -3,13 +3,25 @@ import Product from "../models/Product.model.js";
 // @desc    Create a new product
 // @route   POST /api/products
 export const createProduct = async (req, res) => {
-    try{
+    try {
         const {name, category, currentQuantity, purchasePrice, sellingPrice, minStockLevel, supplier, description} = req.body;
 
-        // Auto-generate a unique SKU (e.g., PET-DOG-123456)
-        const prefix = category.substring(0, 3).toUpperCase();
-        const randomNum = Math.floor(100000 + Math.random() * 900000);
-        const SKU = `${prefix}-${randomNum}`;
+        // 1. Generate Prefix
+        const prefix = category ? category.substring(0, 3).toUpperCase() : 'PRD';
+        
+        // 2. The Collision-Proof SKU Loop
+        let isUnique = false;
+        let finalSKU = '';
+        
+        while (!isUnique) {
+            const randomNum = Math.floor(100000 + Math.random() * 900000);
+            finalSKU = `${prefix}-${randomNum}`;
+            
+            const existingProduct = await Product.findOne({ SKU: finalSKU });
+            if (!existingProduct) {
+                isUnique = true; 
+            }
+        }
 
         let imageUrls = [];
         if (req.file) {
@@ -20,7 +32,7 @@ export const createProduct = async (req, res) => {
             ownerId: req.user._id, 
             name,
             category,
-            SKU,
+            SKU: finalSKU, // Use the verified unique SKU
             currentQuantity,
             purchasePrice,
             sellingPrice,
@@ -31,7 +43,7 @@ export const createProduct = async (req, res) => {
         });
 
         res.status(201).json(product);
-    }catch(error){
+    } catch(error) {
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }

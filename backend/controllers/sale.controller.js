@@ -2,14 +2,16 @@ import mongoose from "mongoose";
 import Sale from "../models/Sale.model.js";
 import Product from "../models/Product.model.js";
 import Transaction from "../models/Transaction.model.js";
+import Counter from "../models/Counter.model.js";
+
 
 // @desc    Create a new sale (POS Checkout)
 // @route   POST /api/sales
 export const createSale = async (req, res) => {
-    try{
+    try {
         const session = await mongoose.startSession();
         session.startTransaction();
-        try{
+        try {
             const {products, discount = 0, tax = 0, paymentMethod} = req.body;
 
             if(!products || products.length === 0){
@@ -44,7 +46,14 @@ export const createSale = async (req, res) => {
             }
 
             const finalAmount = (totalAmount - discount) + tax;
-            const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
+            
+            const counter = await Counter.findOneAndUpdate(
+                { id: 'invoiceNumber', ownerId: req.user._id },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true, session }
+            );
+
+            const invoiceNumber = `INV-${counter.seq}`;
 
             const [sale] = await Sale.create([{
                 ownerId: req.user._id, 
@@ -84,13 +93,13 @@ export const createSale = async (req, res) => {
             
             await session.commitTransaction();
             res.status(201).json(sale);
-        }catch (err){
+        } catch (err){
             await session.abortTransaction();
             throw err;
-        }finally{
+        } finally {
             session.endSession();
         }
-    }catch(error){
+    } catch(error){
         console.error(error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
