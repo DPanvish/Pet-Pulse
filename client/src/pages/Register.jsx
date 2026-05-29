@@ -32,7 +32,7 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-surface-950">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
             
             {/* Premium Ambient Background Mesh */}
             <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-brand-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob pointer-events-none" />
@@ -46,7 +46,7 @@ const Register = () => {
                     >
                         <PawPrint size={28} />
                     </motion.div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">Create Store</h2>
+                    <h2 className="text-3xl font-bold text-foreground tracking-tight">Create Store</h2>
                 </div>
 
                 {/* Display Errors for either step */}
@@ -68,17 +68,17 @@ const Register = () => {
                                 onSubmit={handleRequestOtp} className="space-y-4"
                             >
                                 <div className="relative group">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                                     <input name="name" type="text" required placeholder="Owner Name" value={formData.name} onChange={handleChange} className="input-field" />
                                 </div>
                                 
                                 <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                                     <input name="email" type="email" required placeholder="Email Address" value={formData.email} onChange={handleChange} className="input-field" />
                                 </div>
                                 
                                 <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                                     <input name="password" type="password" required placeholder="Secure Password" value={formData.password} onChange={handleChange} className="input-field" />
                                 </div>
                                 
@@ -94,13 +94,13 @@ const Register = () => {
                                 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}
                                 onSubmit={handleVerifyOtp} className="space-y-5 text-center"
                             >
-                                <p className="text-neutral-400 text-sm mb-4">
+                                <p className="text-muted text-sm mb-4">
                                     We sent a 6-digit code to <br/>
-                                    <span className="text-white font-medium">{formData.email}</span>
+                                    <span className="text-foreground font-medium">{formData.email}</span>
                                 </p>
                                 
                                 <div className="relative group">
-                                    <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-400 transition-colors" size={18} />
+                                    <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-brand-400 transition-colors" size={18} />
                                     <input 
                                         name="otp" type="text" required placeholder="000000" maxLength={6} 
                                         value={formData.otp} onChange={handleChange} 
@@ -114,7 +114,7 @@ const Register = () => {
                                     </button>
                                 </div>
                                 
-                                <button type="button" onClick={() => setStep(1)} className="text-neutral-500 text-sm mt-4 hover:text-brand-400 transition-colors font-medium">
+                                <button type="button" onClick={() => setStep(1)} className="text-muted text-sm mt-4 hover:text-brand-400 transition-colors font-medium">
                                     ← Back to details
                                 </button>
                             </motion.form>
@@ -123,7 +123,7 @@ const Register = () => {
                 </div>
 
                 {step === 1 && (
-                    <p className="text-center text-neutral-500 mt-8 text-sm font-medium">
+                    <p className="text-center text-muted mt-8 text-sm font-medium">
                         Already have a store? <Link to="/login" className="text-brand-400 hover:text-brand-300 transition-colors">Sign in</Link>
                     </p>
                 )}
