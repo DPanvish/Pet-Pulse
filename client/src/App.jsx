@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
+import POS from './pages/POS';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -20,7 +21,6 @@ const queryClient = new QueryClient({
     },
 });
 
-const POS = () => <div className="animate-fade-in"><h1 className="text-3xl font-bold text-foreground">Point of Sale</h1></div>;
 
 const ProtectedRoute = ({ children }) => {
     const { token } = useAuthStore();

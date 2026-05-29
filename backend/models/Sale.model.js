@@ -50,7 +50,7 @@ const saleSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ["Cash", "Card", "Upi"],
+        enum: ["Cash", "Card", "UPI"],
         required: true,
     },
 }, {timestamps: true});
