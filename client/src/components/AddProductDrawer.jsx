@@ -1,18 +1,43 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Loader2, Package, ChevronDown, Check } from 'lucide-react';
-import { useProducts, useCreateProduct } from '../hooks/useProducts';
+import { useProducts, useCreateProduct, useUpdateProduct } from '../hooks/useProducts';
 
-const AddProductDrawer = ({ isOpen, onClose }) => {
+const AddProductDrawer = ({ isOpen, onClose, editData = null }) => {
     const [isNewCategory, setIsNewCategory] = useState(false);
     
-    const [formData, setFormData] = useState({name: '', category: '', currentQuantity: '', minStockLevel: '', purchasePrice: '', sellingPrice: '', supplier: '', description: ''});
+    const [formData, setFormData] = useState({
+        name: '', category: '', currentQuantity: '', minStockLevel: '', 
+        purchasePrice: '', sellingPrice: '', supplier: '', description: ''
+    });
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+    const { data: products } = useProducts();
+    const { mutate: createProduct, isPending: isCreating, isError: isCreateError, error: createError } = useCreateProduct();
+    const { mutate: updateProduct, isPending: isUpdating, isError: isUpdateError, error: updateError } = useUpdateProduct();
+
+    const isPending = isCreating || isUpdating;
+    const isError = isCreateError || isUpdateError;
+    const error = createError || updateError;
+
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen && editData) {
+            setFormData({
+                name: editData.name || '',
+                category: editData.category || '',
+                currentQuantity: editData.currentQuantity || '',
+                minStockLevel: editData.minStockLevel || '',
+                purchasePrice: editData.purchasePrice || '',
+                sellingPrice: editData.sellingPrice || '',
+                supplier: editData.supplier || '',
+                description: editData.description || ''
+            });
+            if (editData.images && editData.images.length > 0) {
+                setImagePreview(editData.images[0]);
+            }
+        } else if (!isOpen) {
             setFormData({
                 name: '', category: '', currentQuantity: '', minStockLevel: '',
                 purchasePrice: '', sellingPrice: '', supplier: '', description: ''
@@ -22,27 +47,18 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
             setIsNewCategory(false);
             setIsDropdownOpen(false);
         }
-    }, [isOpen]);
-
-    const { data: products } = useProducts();
-    const { mutate: createProduct, isPending, isError, error } = useCreateProduct();
+    }, [isOpen, editData]);
 
     const displayCategories = useMemo(() => {
         const defaults = [
-            'Pet Food', 
-            'Fish & Aquatics', 
-            'Birds & Supplies', 
-            'Dogs & Cats',
-            'Small Pets (Hamsters/Rabbits)',
-            'Toys & Accessories', 
-            'Health & Grooming'
+            'Pet Food', 'Fish & Aquatics', 'Birds & Supplies', 
+            'Dogs & Cats', 'Small Pets (Hamsters/Rabbits)',
+            'Toys & Accessories', 'Health & Grooming'
         ];
         
         if (!products) return defaults;
         
-        // Extract unique categories from the user's actual inventory
         const existing = [...new Set(products.map(p => p.category))];
-        // Combine and remove duplicates
         return [...new Set([...defaults, ...existing])];
     }, [products]);
 
@@ -65,15 +81,15 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
         Object.keys(formData).forEach(key => submitData.append(key, formData[key]));
         if (imageFile) submitData.append('images', imageFile);
 
-        createProduct(submitData, {
-            onSuccess: () => {
-                setFormData({ name: '', category: '', currentQuantity: '', minStockLevel: '', purchasePrice: '', sellingPrice: '', supplier: '', description: '' });
-                setImageFile(null);
-                setImagePreview(null);
-                setIsNewCategory(false);
-                onClose();
-            }
-        });
+        if (editData) {
+            updateProduct({ id: editData._id, formData: submitData }, {
+                onSuccess: () => onClose()
+            });
+        } else {
+            createProduct(submitData, {
+                onSuccess: () => onClose()
+            });
+        }
     };
 
     return (
@@ -94,7 +110,7 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
                         <div className="flex items-center justify-between p-6 border-b border-border">
                             <h2 className="text-xl font-bold text-foreground flex items-center tracking-tight">
                                 <Package className="mr-2 text-brand-500" size={20} />
-                                Add New Product
+                                {editData ? 'Edit Product' : 'Add New Product'}
                             </h2>
                             <button onClick={onClose} className="p-2 text-muted hover:text-foreground hover:bg-input rounded-xl transition-colors">
                                 <X size={20} />
@@ -105,12 +121,11 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
                             
                             {isError && (
                                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm">
-                                    {error.response?.data?.msg || error.response?.data?.message || 'Failed to add product'}
+                                    {error.response?.data?.msg || error.response?.data?.message || 'Failed to save product'}
                                 </div>
                             )}
 
                             <form id="addProductForm" onSubmit={handleSubmit} className="space-y-5">
-                                {/* Image Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-muted mb-2">Product Image</label>
                                     <div className="relative h-40 w-full rounded-xl border-2 border-dashed border-border hover:border-brand-500 bg-input/50 flex flex-col items-center justify-center transition-colors overflow-hidden group cursor-pointer">
@@ -132,8 +147,6 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
                                         <input required name="name" value={formData.name} onChange={handleChange} className="input-field" placeholder="e.g. Premium Dog Kibble" />
                                     </div>
                                     
-                                    {/* THE HYBRID CATEGORY TOGGLE */}
-                                    {/* THE PREMIUM HYBRID CATEGORY TOGGLE */}
                                     <div className="relative">
                                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Category</label>
                                         {isNewCategory ? (
@@ -145,7 +158,6 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
                                             </div>
                                         ) : (
                                             <div className="flex gap-2">
-                                                {/* Custom Dropdown Trigger */}
                                                 <div className="relative flex-1">
                                                     <button 
                                                         type="button" 
@@ -158,7 +170,6 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
                                                         <ChevronDown size={16} className={`text-muted transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                                                     </button>
                                                     
-                                                    {/* Custom Dropdown Menu */}
                                                     <AnimatePresence>
                                                         {isDropdownOpen && (
                                                             <motion.ul
@@ -229,7 +240,7 @@ const AddProductDrawer = ({ isOpen, onClose }) => {
 
                         <div className="p-6 border-t border-border bg-panel">
                             <button type="submit" form="addProductForm" disabled={isPending} className="btn-primary inner-highlight">
-                                {isPending ? <Loader2 className="animate-spin" size={20} /> : 'Save Product'}
+                                {isPending ? <Loader2 className="animate-spin" size={20} /> : (editData ? 'Save Changes' : 'Save Product')}
                             </button>
                         </div>
                     </motion.div>

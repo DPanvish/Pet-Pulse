@@ -19,14 +19,42 @@ export const useCreateProduct = () => {
 
     return useMutation({
         mutationFn: async (formData) => {
-            // We use formData because we are uploading an image file
             const { data } = await api.post('/products', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             return data;
         },
         onSuccess: () => {
-            // Instantly refresh the inventory table!
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        }
+    });
+};
+
+export const useUpdateProduct = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ id, formData }) => {
+            const { data } = await api.put(`/products/${id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        }
+    });
+};
+
+export const useDeleteProduct = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id) => {
+            const { data } = await api.delete(`/products/${id}`);
+            return data;
+        },
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
         }
     });

@@ -1,17 +1,19 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Filter, MoreVertical, AlertCircle, PackageOpen, Loader2, ChevronDown, Check } from 'lucide-react';
-import { useProducts } from '../hooks/useProducts';
+import { Search, Plus, Filter, Edit2, Trash2, AlertCircle, PackageOpen, Loader2, ChevronDown, Check } from 'lucide-react';
+import { useProducts, useDeleteProduct } from '../hooks/useProducts';
 import AddProductDrawer from '../components/AddProductDrawer';
-
 
 const Inventory = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+    
+    const [editingProduct, setEditingProduct] = useState(null);
 
     const { data: products, isLoading, isError } = useProducts(searchQuery, categoryFilter);
+    const { mutate: deleteProduct } = useDeleteProduct();
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount);
@@ -28,6 +30,25 @@ const Inventory = () => {
         return [...new Set([...defaults, ...existing])];
     }, [products]);
 
+    // Handle opening drawer in Edit Mode
+    const handleEdit = (product) => {
+        setEditingProduct(product);
+        setIsDrawerOpen(true);
+    };
+
+    // Handle opening drawer in Create Mode
+    const handleCreateNew = () => {
+        setEditingProduct(null);
+        setIsDrawerOpen(true);
+    };
+
+    // Handle deleting a product
+    const handleDelete = (id, name) => {
+        if (window.confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) {
+            deleteProduct(id);
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12">
             
@@ -38,7 +59,7 @@ const Inventory = () => {
                     <p className="text-muted mt-1">Manage your store's products, pricing, and stock levels.</p>
                 </div>
                 <button 
-                    onClick={() => setIsDrawerOpen(true)} // Added onClick!
+                    onClick={handleCreateNew} 
                     className="btn-primary w-auto px-6 whitespace-nowrap"
                 >
                     <Plus size={18} className="mr-2" />
@@ -81,7 +102,6 @@ const Inventory = () => {
                                 transition={{ duration: 0.2 }}
                                 className="absolute z-50 w-full mt-2 bg-background border border-border rounded-xl shadow-2xl max-h-60 overflow-y-auto custom-scrollbar overflow-hidden"
                             >
-                                {/* Option to clear the filter */}
                                 <li 
                                     onClick={() => {
                                         setCategoryFilter('');
@@ -93,7 +113,6 @@ const Inventory = () => {
                                     {categoryFilter === '' && <Check size={16} className="text-brand-500" />}
                                 </li>
                                 
-                                {/* Dynamic Categories */}
                                 {displayCategories.map(cat => (
                                     <li 
                                         key={cat} 
@@ -157,7 +176,6 @@ const Inventory = () => {
                                         key={product._id} 
                                         className="border-b border-border hover:bg-input/50 transition-colors group"
                                     >
-                                        {/* Product Image & Details */}
                                         <td className="py-4 px-6">
                                             <div className="flex items-center">
                                                 <div className="h-10 w-10 flex-shrink-0 bg-background rounded-lg border border-border overflow-hidden flex items-center justify-center">
@@ -176,14 +194,12 @@ const Inventory = () => {
                                             </div>
                                         </td>
                                         
-                                        {/* Category */}
                                         <td className="py-4 px-6 text-sm text-foreground">
                                             <span className="bg-background border border-border px-2.5 py-1 rounded-md text-xs font-medium">
                                                 {product.category}
                                             </span>
                                         </td>
                                         
-                                        {/* Stock (With Low Stock Warning) */}
                                         <td className="py-4 px-6 text-sm">
                                             <div className="flex items-center">
                                                 <span className={`font-medium ${product.currentQuantity <= product.minStockLevel ? 'text-red-500' : 'text-foreground'}`}>
@@ -195,16 +211,27 @@ const Inventory = () => {
                                             </div>
                                         </td>
                                         
-                                        {/* Price */}
                                         <td className="py-4 px-6 text-sm text-foreground font-medium">
                                             {formatCurrency(product.sellingPrice)}
                                         </td>
                                         
-                                        {/* Actions */}
                                         <td className="py-4 px-6 text-right">
-                                            <button className="p-2 text-muted hover:text-foreground hover:bg-background rounded-lg transition-colors">
-                                                <MoreVertical size={18} />
-                                            </button>
+                                            <div className="flex justify-end gap-2">
+                                                <button 
+                                                    onClick={() => handleEdit(product)}
+                                                    className="p-2 text-blue-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                                    title="Edit Product"
+                                                >
+                                                    <Edit2 size={18} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(product._id, product.name)}
+                                                    className="p-2 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    title="Delete Product"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </motion.tr>
                                 ))
@@ -216,7 +243,8 @@ const Inventory = () => {
 
             <AddProductDrawer 
                 isOpen={isDrawerOpen} 
-                onClose={() => setIsDrawerOpen(false)} 
+                onClose={() => setIsDrawerOpen(false)}
+                editData={editingProduct} 
             />
         </div>
     );
