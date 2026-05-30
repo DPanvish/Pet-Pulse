@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.MODE === 'production' ? import.meta.env.BASE_URL : 'http://localhost:5000/api',
+    baseURL: "https://pet-pulse-3bma.onrender.com/api",
     withCredentials: true,
 });
 
