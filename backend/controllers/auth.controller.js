@@ -11,11 +11,24 @@ const generateToken = (id) => {
     });
 };
 
+const buildAuthResponse = (user) => ({
+    user: {
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+    },
+    token: generateToken(user._id),
+});
+
 // @desc    Request Registration & Send OTP
 // @route   POST /api/auth/request-register
 export const requestRegistration = async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ msg: 'Email is required' });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ msg: 'User already exists' });
@@ -41,6 +54,9 @@ export const requestRegistration = async (req, res) => {
 export const verifyAndRegister = async (req, res) => {
     try {
         const { name, email, password, phone, otp } = req.body;
+        if (!name || !email || !password || !otp) {
+            return res.status(400).json({ msg: 'Name, email, password, and OTP are required' });
+        }
 
         const validOtp = await Otp.findOne({ email, otp });
         if (!validOtp) {
@@ -66,13 +82,7 @@ export const verifyAndRegister = async (req, res) => {
         await Otp.deleteMany({ email });
 
         if (user) {
-            const token = generateToken(user._id);
-            return res.status(201).json({
-                _id: user.id,
-                name: user.name,
-                email: user.email,
-                token,
-            });
+            return res.status(201).json(buildAuthResponse(user));
         } else {
             return res.status(400).json({ msg: 'Invalid user data' });
         }
@@ -94,14 +104,7 @@ export const loginUser = async (req, res) => {
             user.loginHistory.push({ ipAddress: req.ip });
             await user.save();
 
-            const token = generateToken(user._id);
-
-            res.status(200).json({
-                _id: user.id,
-                name: user.name,
-                email: user.email,
-                token
-            });
+            res.status(200).json(buildAuthResponse(user));
         } else {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }

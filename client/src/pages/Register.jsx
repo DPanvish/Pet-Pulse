@@ -25,6 +25,7 @@ const Register = () => {
     const handleVerifyOtp = (e) => {
         e.preventDefault();
         verifyRegisterMutation.mutate({ 
+            name: formData.name,
             email: formData.email, 
             password: formData.password, 
             otp: formData.otp 

@@ -1,14 +1,45 @@
 import Sale from '../models/Sale.model.js';
 import Product from '../models/Product.model.js';
 
+const getSalesMatchQuery = (ownerId, range) => {
+    const query = { ownerId };
+
+    if (!range || range === 'all') {
+        return query;
+    }
+
+    const startDate = new Date();
+
+    switch (range) {
+        case 'today':
+            startDate.setHours(0, 0, 0, 0);
+            break;
+        case 'week':
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+        case 'month':
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+        case 'year':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+        default:
+            startDate.setMonth(startDate.getMonth() - 1);
+    }
+
+    query.createdAt = { $gte: startDate };
+    return query;
+};
+
 // @desc    Get top-level dashboard metrics (Revenue, Sales Count, Low Stock)
 // @route   GET /api/analytics/dashboard
 export const getDashboardMetrics = async(req, res) => {
     try{
         const ownerId = req.user._id;
+        const salesMatchQuery = getSalesMatchQuery(ownerId, req.query.range);
 
         const salesData = await Sale.aggregate([
-            { $match: { ownerId } },
+            { $match: salesMatchQuery },
             { $unwind: "$products" }, // Break apart the cart to calculate individual item costs
             {
                 // Group back by Invoice to get the true Revenue and total Cost per sale
@@ -43,7 +74,7 @@ export const getDashboardMetrics = async(req, res) => {
 
         const totalProducts = await Product.countDocuments({ownerId});
 
-        const recentSales = await Sale.find({ ownerId })
+        const recentSales = await Sale.find(salesMatchQuery)
             .sort({ createdAt: -1 })
             .limit(5)
             .populate('products.product', 'name');
@@ -67,8 +98,10 @@ export const getDashboardMetrics = async(req, res) => {
 // @route   GET /api/analytics/top-products
 export const getTopProducts = async (req, res) => {
     try {
+        const salesMatchQuery = getSalesMatchQuery(req.user._id, req.query.range);
+
         const topProducts = await Sale.aggregate([
-            { $match: { ownerId: req.user._id } },
+            { $match: salesMatchQuery },
             { $unwind: "$products" }, // Deconstruct the products array inside sales
             {
                 $group: {
