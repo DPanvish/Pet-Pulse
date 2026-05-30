@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: import.meta.env.MODE === 'production' ? import.meta.env.BASE_URL : 'http://localhost:5000/api',
+    withCredentials: true,
 });
 
 // Automatically attach the token to every request
