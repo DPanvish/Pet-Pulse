@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
     },
+    address: { 
+        type: String, 
+        required: true 
+    },
+    shopName: { 
+        type: String, 
+        required: true 
+    },
     avatar: {
         type: String,
         default: "",

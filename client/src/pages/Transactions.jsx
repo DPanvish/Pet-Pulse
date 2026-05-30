@@ -1,48 +1,45 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Download, Receipt, Calendar, FileText, Search, X, Printer, Loader2 
-} from 'lucide-react';
+import { Download, Receipt, Calendar, FileText, Search, X, Printer, Loader2 } from 'lucide-react';
 import { useSalesHistory } from '../hooks/useSales';
+import { useAuthStore } from '../store/authStore';
 
-// Utility function to format numbers into standard Indian Rupee (INR) currency strings
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(amount || 0);
 };
 
 const Transactions = () => {
-    // --- STATE MANAGEMENT ---
-    // Controls the backend query range (today, week, month, 6months, year, all)
     const [timeRange, setTimeRange] = useState('month');
-    // Controls the frontend local search filter for invoice numbers
     const [searchQuery, setSearchQuery] = useState('');
-    // Holds the specific sale object when a user clicks to view a receipt
     const [selectedInvoice, setSelectedInvoice] = useState(null);
-
-    // --- DATA FETCHING ---
-    // Automatically refetches when timeRange changes
     const { data: salesData, isLoading, isError } = useSalesHistory(timeRange);
+    const { user } = useAuthStore();
     
-    // Ensure sales is always an array, then filter based on the search input
     const sales = Array.isArray(salesData) ? salesData : [];
     const filteredSales = sales.filter(sale => 
         sale.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // --- CSV EXPORT LOGIC ---
     const handleExportCSV = () => {
-        if (filteredSales.length === 0) return; // Prevent exporting empty files
+        if (filteredSales.length === 0) return; 
 
-        // 1. Define the exact column headers for the spreadsheet
-        const headers = ['Invoice Number', 'Date', 'Time', 'Items Sold', 'Discount (INR)', 'Tax (INR)', 'Total Revenue (INR)', 'Payment Method'];
+        const headers = [
+            'Invoice Number', 'Date', 'Time', 'Item Names', 'Items Sold', 
+            'Discount (INR)', 'Tax (INR)', 'Total Revenue (INR)', 'Payment Method'
+        ];
         
-        // 2. Map the JSON data into an array of comma-separated strings
         const rows = filteredSales.map(sale => {
             const date = new Date(sale.createdAt);
+            
+            const itemNames = sale.products
+                ?.map(item => item.product?.name || 'Deleted/Unknown Item')
+                .join(' | ') || 'No Items';
+
             return [
                 sale.invoiceNumber,
-                date.toLocaleDateString('en-IN'), // Localized Date
-                date.toLocaleTimeString('en-IN'), // Localized Time
+                date.toLocaleDateString('en-IN'), 
+                date.toLocaleTimeString('en-IN'), 
+                `"${itemNames}"`, 
                 sale.products?.length || 0,
                 sale.discount || 0,
                 sale.tax || 0,
@@ -51,28 +48,23 @@ const Transactions = () => {
             ].join(','); 
         });
 
-        // 3. Combine headers and rows with line breaks (\n) to form the CSV string
         const csvContent = [headers.join(','), ...rows].join('\n');
         
-        // 4. Create a Blob (a file-like object of immutable, raw data)
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         
-        // 5. Create a hidden <a> tag, attach the Blob URL, and trigger a programmatic click to download
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `PetPulse_Report_${timeRange}_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         
-        // 6. Cleanup the DOM after download
         document.body.removeChild(link);
     };
 
     return (
         <> 
-            {/* --- MAIN PAGE WRAPPER --- */}
-            {/* The 'print:hidden' class ensures this entire dashboard disappears when the browser print dialog opens */}
+            {/* MAIN PAGE WRAPPER */}
             <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-12 print:hidden">
                 
                 {/* PAGE HEADER & CONTROLS */}
@@ -89,7 +81,6 @@ const Transactions = () => {
                     <div className="flex flex-col sm:flex-row flex-wrap items-center justify-start lg:justify-end gap-3 w-full lg:w-auto overflow-hidden">
                         
                         {/* TIME RANGE TOGGLE */}
-                        {/* max-w-full and overflow-x-auto allow horizontal scrolling on tiny mobile screens */}
                         <div className="flex p-1 bg-input/40 backdrop-blur-md rounded-xl border border-border shrink-0 overflow-x-auto custom-scrollbar max-w-full">
                             {[
                                 { id: 'today', label: 'Today' },
@@ -120,7 +111,6 @@ const Transactions = () => {
                         </div>
 
                         {/* EXPORT BUTTON */}
-                        {/* flex-none and w-max prevent the button from dynamically stretching and breaking the layout */}
                         <button 
                             onClick={handleExportCSV}
                             disabled={filteredSales.length === 0}
@@ -132,7 +122,7 @@ const Transactions = () => {
                     </div>
                 </div>
 
-                {/* --- DATA TABLE SECTION --- */}
+                {/* DATA TABLE SECTION */}
                 <div className="glass-panel inner-highlight rounded-2xl overflow-hidden flex flex-col min-h-[500px]">
                     
                     {/* Search Bar */}
@@ -163,7 +153,6 @@ const Transactions = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* Conditional Rendering: Loading State */}
                                 {isLoading ? (
                                     <tr>
                                         <td colSpan="6" className="py-12 text-center">
@@ -172,7 +161,6 @@ const Transactions = () => {
                                         </td>
                                     </tr>
                                 ) : filteredSales.length === 0 ? (
-                                    /* Conditional Rendering: Empty State */
                                     <tr>
                                         <td colSpan="6" className="py-16 text-center">
                                             <Receipt className="mx-auto text-muted mb-4 opacity-50" size={48} />
@@ -181,7 +169,6 @@ const Transactions = () => {
                                         </td>
                                     </tr>
                                 ) : (
-                                    /* Conditional Rendering: Data Rows */
                                     filteredSales.map((sale, index) => (
                                         <motion.tr 
                                             initial={{ opacity: 0, y: 10 }}
@@ -189,7 +176,7 @@ const Transactions = () => {
                                             transition={{ duration: 0.2, delay: index * 0.05 }}
                                             key={sale._id} 
                                             className="border-b border-border hover:bg-input/50 transition-colors group cursor-pointer"
-                                            onClick={() => setSelectedInvoice(sale)} // Opens the Receipt Modal
+                                            onClick={() => setSelectedInvoice(sale)} 
                                         >
                                             <td className="py-4 px-6 font-semibold text-foreground">
                                                 {sale.invoiceNumber}
@@ -224,11 +211,9 @@ const Transactions = () => {
                 </div>
             </div>
 
-            {/* --- RECEIPT MODAL (PRINT VIEW) --- */}
-            {/* Sits outside the main 'print:hidden' div so it can be printed */}
+            {/* RECEIPT MODAL (PRINT VIEW) */}
             <AnimatePresence>
                 {selectedInvoice && (
-                    // print:static and print:p-0 override flexbox centering during print to align the receipt to the paper's top-left
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:static print:block print:p-0">
                         
                         {/* Dark blurred background overlay (hidden during print) */}
@@ -239,7 +224,6 @@ const Transactions = () => {
                         />
 
                         {/* The Actual Receipt Document */}
-                        {/* print CSS strips shadows, margins, and border radii to create a clean white paper look */}
                         <motion.div 
                             initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
                             className="relative bg-white text-black w-full max-w-sm rounded-xl shadow-2xl overflow-hidden z-10 print:shadow-none print:w-full print:max-w-none print:m-0 print:rounded-none"
@@ -255,8 +239,15 @@ const Transactions = () => {
                             <div className="p-8">
                                 {/* Receipt Header details */}
                                 <div className="text-center mb-6">
-                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight">PETPULSE</h2>
-                                    <p className="text-sm text-gray-500">Premium Pet Supplies</p>
+                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase">
+                                        {user?.shopName || 'PETPULSE HUB'}
+                                    </h2>
+                                    <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">
+                                        {user?.address || 'Store Address Not Set'}
+                                    </p>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Ph: {user?.phone || 'N/A'}
+                                    </p>
                                     <div className="mt-4 pt-4 border-t border-dashed border-gray-300">
                                         <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">{selectedInvoice.invoiceNumber}</p>
                                         <p className="text-xs text-gray-400 mt-1">{new Date(selectedInvoice.createdAt).toLocaleString('en-IN')}</p>

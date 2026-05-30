@@ -13,9 +13,12 @@ const generateToken = (id) => {
 
 const buildAuthResponse = (user) => ({
     user: {
-        _id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        shopName: user.shopName,
+        address: user.address
     },
     token: generateToken(user._id),
 });
@@ -53,9 +56,10 @@ export const requestRegistration = async (req, res) => {
 // @route   POST /api/auth/verify-register
 export const verifyAndRegister = async (req, res) => {
     try {
-        const { name, email, password, phone, otp } = req.body;
-        if (!name || !email || !password || !otp) {
-            return res.status(400).json({ msg: 'Name, email, password, and OTP are required' });
+        const { name, email, password, phone, shopName, address, otp } = req.body;
+        
+        if (!name || !email || !password || !otp || !shopName || !address) {
+            return res.status(400).json({ msg: 'Name, email, password, shop name, address, and OTP are required' });
         }
 
         const validOtp = await Otp.findOne({ email, otp });
@@ -76,7 +80,9 @@ export const verifyAndRegister = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            phone
+            phone,
+            shopName,
+            address
         });
 
         await Otp.deleteMany({ email });
