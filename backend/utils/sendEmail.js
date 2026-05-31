@@ -1,14 +1,33 @@
 import nodemailer from "nodemailer"
 
+let transporter;
+
+const getTransporter = () => {
+    const { EMAIL_USER, EMAIL_PASS } = process.env;
+
+    if (!EMAIL_USER || !EMAIL_PASS) {
+        throw new Error('Email service is not configured');
+    }
+
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: EMAIL_USER,
+                pass: EMAIL_PASS,
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000,
+        });
+    }
+
+    return transporter;
+};
+
 const sendEmail = async(email, otp) => {
     try{
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth:{
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            }
-        });
+        const emailTransporter = getTransporter();
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -24,10 +43,10 @@ const sendEmail = async(email, otp) => {
             `,
         };
 
-        await transporter.sendMail(mailOptions);
+        await emailTransporter.sendMail(mailOptions);
     }catch(error){
         console.error('Email could not be sent:', error);
-        throw new Error('Failed to send OTP email');
+        throw new Error(error.message || 'Failed to send OTP email');
     }
 };
 

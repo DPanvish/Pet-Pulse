@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "https://pet-pulse-3bma.onrender.com/api",
+    baseURL: import.meta.env.VITE_API_URL || "https://pet-pulse-3bma.onrender.com/api",
+    timeout: 20000,
     withCredentials: true,
 });
 

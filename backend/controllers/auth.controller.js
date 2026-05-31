@@ -43,7 +43,15 @@ export const requestRegistration = async (req, res) => {
 
         await Otp.create({ email, otp: otpCode });
 
-        await sendEmail(email, otpCode);
+        try {
+            await sendEmail(email, otpCode);
+        } catch (emailError) {
+            await Otp.deleteMany({ email });
+            return res.status(502).json({
+                msg: 'Could not send OTP email. Please try again later.',
+                error: emailError.message
+            });
+        }
 
         res.status(200).json({ msg: 'OTP sent successfully to your email.' });
     } catch (error) {
