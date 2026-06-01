@@ -18,16 +18,9 @@ export const useAuth = () => {
         }
     });
 
-    const requestRegisterMutation = useMutation({
+    const registerMutation = useMutation({
         mutationFn: async (userData) => {
-            const { data } = await api.post('/auth/request-register', userData);
-            return data;
-        }
-    });
-
-    const verifyRegisterMutation = useMutation({
-        mutationFn: async (verifyData) => {
-            const { data } = await api.post('/auth/verify-register', verifyData);
+            const { data } = await api.post('/auth/register', userData);
             return data;
         },
         onSuccess: (data) => {
@@ -38,7 +31,6 @@ export const useAuth = () => {
 
     return {
         loginMutation,
-        requestRegisterMutation,
-        verifyRegisterMutation
+        registerMutation
     };
 };
