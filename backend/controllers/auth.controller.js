@@ -44,10 +44,15 @@ export const requestRegistration = async (req, res) => {
         await Otp.create({ email, otp: otpCode });
 
         try {
-            await sendEmail(email, otpCode);
+            await sendEmail({
+                email: email,
+                subject: 'Your PetPulse Verification Code',
+                message: `Your OTP code is: ${otpCode}`
+            });
         } catch (emailError) {
+            console.error("BREVO REJECTION REASON:", emailError);
             await Otp.deleteMany({ email });
-            return res.status(502).json({
+            return res.status(500).json({
                 msg: 'Could not send OTP email. Please try again later.',
                 error: emailError.message
             });
