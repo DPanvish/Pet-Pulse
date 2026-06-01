@@ -1,53 +1,31 @@
-import nodemailer from "nodemailer"
+import nodemailer from 'nodemailer';
 
-let transporter;
+const sendEmail = async (options) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.BREVO_HOST,
+      port: process.env.BREVO_PORT,
+      secure: false, 
+      auth: {
+        user: process.env.BREVO_USER,
+        pass: process.env.BREVO_PASS,
+      },
+    });
 
-const getTransporter = () => {
-    const { EMAIL_USER, EMAIL_PASS } = process.env;
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || 'SchemaForge Support <support@schemaforge.com>',
+      to: options.email,
+      subject: options.subject,
+      text: options.message,
+    };
 
-    if (!EMAIL_USER || !EMAIL_PASS) {
-        throw new Error('Email service is not configured');
-    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log('OTP Email sent successfully via Brevo:', info.messageId);
 
-    if (!transporter) {
-        transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: EMAIL_USER,
-                pass: EMAIL_PASS,
-            },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 15000,
-        });
-    }
-
-    return transporter;
-};
-
-const sendEmail = async(email, otp) => {
-    try{
-        const emailTransporter = getTransporter();
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: 'PetPulse - Your Registration OTP',
-            html: `
-                <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
-                  <h2>Welcome to PetPulse!</h2>
-                  <p>Your One-Time Password for registration is:</p>
-                  <h1 style="color: #4F46E5; letter-spacing: 5px;">${otp}</h1>
-                  <p>This code will expire in 5 minutes.</p>
-                </div>
-            `,
-        };
-
-        await emailTransporter.sendMail(mailOptions);
-    }catch(error){
-        console.error('Email could not be sent:', error);
-        throw new Error(error.message || 'Failed to send OTP email');
-    }
+  } catch (error) {
+    console.error('Email Dispatch Error:', error);
+    throw new Error('Email could not be sent');
+  }
 };
 
 export default sendEmail;
